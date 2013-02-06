@@ -6,12 +6,10 @@ February 9, 2010
 
 */
 
-#ifdef __APPLE__ & __MACH__
 #include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
 #include <time.h>
+#include <stdlib.h>
+#include <iostream>
 
 using namespace std;
 
@@ -27,7 +25,7 @@ using namespace std;
 #define WEST 2
 
 class Wall {
-  	bool isactive;
+		bool isactive;
 		bool isdrawable;
 		GLfloat x1, y1, x2, y2;
 	public:
@@ -104,7 +102,7 @@ class Disjointset{
 				return sets[index];
 			}
 		}
-		
+
 		void unitesets(int origin, int dest){
 			if(sets[dest] < sets[origin]) {
 				sets[origin] = dest;
@@ -130,17 +128,17 @@ class Maze{
 		Wall **verticals, **horizontals;
 		Maze(int w, int h){
 			int i, j, offset, xrand, yrand, direction, origin_o, destination_o;
-			
+
 			width = w;
 			height = h;
-			
+
 			cells = new Cell * [CELLNUMBER];
-	
+
 			verticals = new Wall * [(width + 1) * height];
 			horizontals = new Wall * [width * (height + 1)];
-	
+
 			set = new Disjointset(width, height);
-			
+
 			draw_offset = PADDING / width;
 			if(draw_offset > PADDING / (GLfloat) height)
 				draw_offset = PADDING / (GLfloat) height;
@@ -150,7 +148,7 @@ class Maze{
 					offset = height * i + j;
 					verticals[offset] = new Wall(((draw_offset * (GLfloat) width) / -2.0) + ((GLfloat) i * draw_offset),
 												((draw_offset * (GLfloat) height) / -2.0) + ((GLfloat) j * draw_offset),
-												((draw_offset * (GLfloat) width) / -2.0) + ((GLfloat) i * draw_offset), 
+												((draw_offset * (GLfloat) width) / -2.0) + ((GLfloat) i * draw_offset),
 												((draw_offset * (GLfloat) height) / -2.0) + ((GLfloat) j * draw_offset) + draw_offset);
 				}
 			}
@@ -164,11 +162,11 @@ class Maze{
 													((draw_offset * (GLfloat) height) / -2.0) + ((GLfloat) j *draw_offset));
 				}
 			}
-			
+
 			for(i = 0; i < width; i++)
 				for(j = 0; j < height; j++)
 					cells[width * j + i] = new Cell(verticals[height * (i + 1) + j], horizontals[width * (j + 1) + i], verticals[height * i + j], horizontals[width * j + i]);
-			
+
 			srand(time(NULL));
 
 			while(set->getroots() > 1){
@@ -186,7 +184,7 @@ class Maze{
 								set->unitesets(set->findroot(origin_o), set->findroot(destination_o));
 								cells[origin_o]->geteast()->unsetactive();
 								cells[origin_o]->geteast()->unsetdrawable();
-							} 
+							}
 						}
 						break;
 					case NORTH:
@@ -206,7 +204,7 @@ class Maze{
 								set->unitesets(set->findroot(origin_o), set->findroot(destination_o));
 								cells[origin_o]->getwest()->unsetactive();
 								cells[origin_o]->getwest()->unsetdrawable();
-							} 
+							}
 						}
 						break;
 					case SOUTH:
@@ -216,15 +214,15 @@ class Maze{
 								set->unitesets(set->findroot(origin_o), set->findroot(destination_o));
 								cells[origin_o]->getsouth()->unsetactive();
 								cells[origin_o]->getsouth()->unsetdrawable();
-							} 
+							}
 						}
 						break;
 				}
 			}
-			
+
 			makeegress();
 		}
-		
+
 		void draw(){
 			int i;
 			for(i = 0; i < CELLNUMBER + width; i++){
@@ -327,7 +325,7 @@ class Rodent {
 			vertices[1][0] = -0.1 * mm->getdrawoffset();
 			vertices[2][0] = vertices[3][0] = vertices[3][1] = -0.3 * mm->getdrawoffset();
 			vertices[0][2] = vertices[1][2] = vertices[2][2] = vertices[3][2] = 0.0;
-			
+
 		}
 		void draw(){
 			glMatrixMode(GL_MODELVIEW);
@@ -370,15 +368,15 @@ Rodent *r;
 void init(){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	
+
 	glOrtho(-2.0, 2.0, -2.0, 2.0, -10.0, 10.0);
 	glMatrixMode(GL_MODELVIEW);
-	
+
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glColor3f(0.0, 0.0, 0.0);
 }
 
-void display(){	
+void display(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	m->draw();
@@ -391,12 +389,12 @@ void reshape(int w, int h){
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	
+
 	if (w <= h)
 		glOrtho(-2.0, 2.0, -2.0*(float)h/(float)w, 2.0*(float)h/(float)w, -10.0, 10.0);
 	else
 		glOrtho(-2.0*(float)w/(float)h, 2.0*(float)w/(float)h, -2.0, 2.0, -10.0, 10.0);
-		
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -441,30 +439,30 @@ void menu(int option){
 
 int main(int argc, char *argv[]){
 	if (argc < 3) {
-		fprintf(stderr, "usage:\tmaze <width> <height>\n");
+		cout << "usage:\tmaze <width> <height>\n";
 		exit(1);
 	}
-	
+
 	int width = atoi(argv[1]);
 	int height = atoi(argv[2]);
-	
-	m = new Maze(width, height);	
+
+	m = new Maze(width, height);
 	r = new Rodent(m);
 
 	glutInit(&argc, argv);
-	
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	
+
 	glutInitWindowSize(WINDOWSIZE, WINDOWSIZE);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("3D Rat Maze");
 
-	glutSpecialFunc(arrowkeys);	
+	glutSpecialFunc(arrowkeys);
 
 	glutCreateMenu(menu);
 	glutAddMenuEntry("Quit", 0);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -473,5 +471,5 @@ int main(int argc, char *argv[]){
 
 	init();
 
-	glutMainLoop();	
+	glutMainLoop();
 }

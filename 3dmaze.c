@@ -6,11 +6,8 @@ February 9, 2010
 
 */
 
-#ifdef __APPLE__ & __MACH__
+
 #include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -25,7 +22,7 @@ February 9, 2010
 #define WEST 2
 
 typedef struct wall {
-  int active;
+	int active;
 	float x1, y1, x2, y2;
 } wall_t;
 
@@ -48,10 +45,10 @@ GLubyte rati[4] = {0, 2, 1, 3};
 void init(){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	
+
 	glOrtho(-2.0, 2.0, -2.0, 2.0, -10.0, 10.0);
 	glMatrixMode(GL_MODELVIEW);
-	
+
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glColor3f(0.0, 0.0, 0.0);
 }
@@ -67,16 +64,16 @@ void line(float x1, float y1, float x2, float y2){
 void rodent(){
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	
+
 	glTranslatef(draw_offset * (GLfloat) width / -2.0 + ((GLfloat) rat->location_x + 0.5) * draw_offset,
 		draw_offset * (GLfloat) height / -2.0 + ((GLfloat) rat->location_y + 0.5) * draw_offset, 0.0);
-	
+
 	glRotatef(rat->direction * 90, 0.0, 0.0, 1.0);
 
 	glVertexPointer(3, GL_FLOAT, 0, ratv);
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, rati);
 	glLoadIdentity();
-	
+
 	glutPostRedisplay();
 }
 
@@ -94,9 +91,9 @@ void maze(){
 	}
 }
 
-void display(){	
+void display(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	maze();
 	rodent();
 
@@ -107,12 +104,12 @@ void reshape(int w, int h){
 	glViewport(0, 0, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	
+
 	if (w <= h)
 		glOrtho(-2.0, 2.0, -2.0*(float)h/(float)w, 2.0*(float)h/(float)w, -10.0, 10.0);
 	else
 		glOrtho(-2.0*(float)w/(float)h, 2.0*(float)w/(float)h, -2.0, 2.0, -10.0, 10.0);
-		
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -149,7 +146,7 @@ void arrowkeys(int key, int x, int y){
 
 void mem_init(){
 	int i, j, cellsize = sizeof(cell_t), wallsize = sizeof(wall_t);
-	
+
 	rat = malloc(sizeof(rodent_t));
 	for(i = 0; i < width + 1; i++)
 		for(j = 0; j < height; j++)
@@ -160,20 +157,20 @@ void mem_init(){
 	for(i = 0; i < width; i++)
 		for(j = 0; j < height; j++)
 			mazecell[width * j + i] = malloc(cellsize);
-				
+
 }
 
 void grid_init(){
 	int i, j, offset;
-	
+
 	draw_offset = PADDING / width;
 	if(draw_offset > PADDING / (float) height)
 		draw_offset  = PADDING / (float) height;
-	
+
 	for(i = 0; i < CELLNUMBER; i++)
 		sets[i]= -1;
 	roots = CELLNUMBER;
-	
+
 	for(i = 0; i < width + 1; i++){
 		for(j = 0; j < height; j++){
 			offset = height * i + j;
@@ -183,7 +180,7 @@ void grid_init(){
 			vertwall[offset]->y2 = ((draw_offset * (float) height) / -2.0) + ((float) j * draw_offset) + draw_offset;
 		}
 	}
-	
+
 	for(i = 0; i < width; i++){
 		for(j = 0; j < height + 1; j++){
 			offset = width * j + i;
@@ -193,11 +190,11 @@ void grid_init(){
 			horiwall[offset]->x2 = ((draw_offset * (float) width) / -2.0) + ((float) i * draw_offset) + draw_offset;
 		}
 	}
-	
+
 	for(i = 0; i < width; i++){
 		for(j = 0; j < height; j++){
 			offset = width * j + i;
-			
+
 			mazecell[offset]->north = horiwall[width * (j + 1) + i];
 			mazecell[offset]->east = vertwall[height * (i + 1) + j];
 			mazecell[offset]->south = horiwall[width * j + i];
@@ -227,17 +224,17 @@ void unitesets(int origin, int dest){
 }
 
 void maze_init(){
-	
+
 	int i, xrand, yrand, direction, origin_o, destination_o;
 	srand(time(NULL));
 
-	while(roots > 1){		
+	while(roots > 1){
 		xrand = rand() % width;
 		yrand = rand() % height;
 		direction = rand() % 4;
 
 		origin_o = yrand * width + xrand;
-		
+
 		switch(direction){
 			case NORTH:
 				if(yrand < height - 1){
@@ -254,7 +251,7 @@ void maze_init(){
 					if(findroot(origin_o) != findroot(destination_o)){
 						unitesets(findroot(origin_o), findroot(destination_o));
 						mazecell[origin_o]->east->active = 0;
-					} 
+					}
 				}
 				break;
 			case SOUTH:
@@ -263,7 +260,7 @@ void maze_init(){
 					if(findroot(origin_o) != findroot(destination_o)){
 						unitesets(findroot(origin_o), findroot(destination_o));
 						mazecell[origin_o]->south->active = 0;
-					} 
+					}
 				}
 				break;
 			case WEST:
@@ -272,19 +269,19 @@ void maze_init(){
 					if(findroot(origin_o) != findroot(destination_o)){
 						unitesets(findroot(origin_o), findroot(destination_o));
 						mazecell[origin_o]->west->active = 0;
-					} 
+					}
 				}
 				break;
 		}
 	}
-	
+
 	egress[0][0] = rand() % 4;
 	egress[0][1] = rand();
 	do{
 		egress[1][0] = rand() % 4;
 		egress[1][1] = rand();
 	} while(egress[0][0] == egress[1][0] && egress[0][1] == egress[1][1]);
-	
+
 	for(i = 0; i < 2; i++){
 		switch(egress[i][0]){
 			case NORTH:
@@ -309,7 +306,7 @@ void maze_init(){
 
 void rodent_init(){
 	rat->direction = (egress[0][0] + 2) % 4;
-	
+
 	switch(egress[0][0]){
 		case NORTH:
 			rat->location_x = egress[0][1];
@@ -328,7 +325,7 @@ void rodent_init(){
 			rat->location_y = egress[0][1];
 			break;
 	}
-	
+
 	ratv[0][0] = 0.3 * draw_offset;
 	ratv[0][1] = ratv[1][1] = 0.0;
 	ratv[1][0] = -0.1 * draw_offset;
@@ -350,15 +347,15 @@ int main(int argc, char *argv[]){
 		fprintf(stderr, "usage:\tmaze <width> <height>\n");
 		exit(1);
 	}
-	
+
 	width = atoi(argv[1]);
 	height = atoi(argv[2]);
-	
+
 	vertwall = malloc((width + 1) * height * sizeof(void *));
 	horiwall = malloc(width * (height + 1) * sizeof(void *));
-	
+
 	mazecell = malloc(width * height * sizeof(void *));
-	
+
 	sets = malloc(width * height * sizeof(void *));
 
 	mem_init();
@@ -368,19 +365,19 @@ int main(int argc, char *argv[]){
 	rodent_init();
 
 	glutInit(&argc, argv);
-	
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	
+
 	glutInitWindowSize(WINDOWSIZE, WINDOWSIZE);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("3D Rat Maze");
 
-	glutSpecialFunc(arrowkeys);	
+	glutSpecialFunc(arrowkeys);
 
 	glutCreateMenu(menu);
 	glutAddMenuEntry("Quit", 0);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -389,5 +386,5 @@ int main(int argc, char *argv[]){
 
 	init();
 
-	glutMainLoop();	
+	glutMainLoop();
 }
